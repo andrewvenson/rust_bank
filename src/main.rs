@@ -1,16 +1,18 @@
 use std::io;
 use std::collections::HashMap;
+use hex::encode;
+use sha2::{Sha512, Digest};
 
 fn main() {
     let mut creds: HashMap<String, String>  = HashMap::new();
     let expect = "Failed to readline";
     creds.insert("admin".to_string(), "123".to_string());
+    let mut loggedin = false;
 
     loop{
         let mut pin = String::new();
         let mut username  = String::new();
         let mut acc_action = String::new();
-        let mut loggedin = false;
 
         println!("\nPress 1 to login \nPress 2 to create account");
         io::stdin().read_line(&mut acc_action).expect(expect);
