@@ -10,6 +10,7 @@ fn main() {
     let mut loggedin = false;
 
     loop{
+        println!("{:?}", creds);
         let mut pin = String::new();
         let mut username  = String::new();
         let mut acc_action = String::new();
@@ -26,7 +27,9 @@ fn main() {
 
             let creds_pin = creds.get(&username.trim().to_string());
 
-            if creds_pin == Some(&pin.trim().to_string()){
+            pin = hash_pin(&pin.trim().to_string());
+
+            if creds_pin == Some(&pin){
                 loggedin = true;
                 println!("\nHello {}", username);
             }else{
@@ -68,11 +71,11 @@ fn main() {
             }
         }
     }
-
 }
 
 fn create_account(creds: &mut HashMap<String, String>) {
     let expect = "Failed to readline";
+
     loop{
         let mut un = String::new();
         let mut pn = String::new();
@@ -87,8 +90,11 @@ fn create_account(creds: &mut HashMap<String, String>) {
         println!("Re-enter your pin");
         io::stdin().read_line(&mut repin).expect(expect);
 
-        if pn.trim().to_string() == repin.trim().to_string() {
-            creds.insert(un.trim().to_string(), pn.trim().to_string());
+        pn = hash_pin(&pn.trim().to_string());
+        repin = hash_pin(&repin.trim().to_string());
+
+        if pn == repin {
+            creds.insert(un.trim().to_string(), pn);
             println!("Account created");
             break;
         }else{
@@ -96,6 +102,13 @@ fn create_account(creds: &mut HashMap<String, String>) {
             continue;
         }
     }
+}
+
+fn hash_pin(pin: &String) -> String {
+    let mut hasher_pin = Sha512::new();
+    hasher_pin.update(pin.as_bytes());
+    let result = hasher_pin.finalize();
+    encode(result)
 }
 
 fn withdraw_money(amnt: &String, balance: &i32) -> i32 {
